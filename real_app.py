@@ -18,10 +18,10 @@ ip = "10.0.2.50"  # ip APP
 domain = "www.myApp.com"  # domain APP
 server_ip = "10.0.2.60"
 count = 0
-client_port_tcp = 25553  # app bind tcp
-server_port = 24666  # server bind
-udp_port = 31223  # app bind rudp
-client_port_rudp = 18848  # client bind rudp
+client_port_tcp = 30308  # app bind tcp
+server_port = 30693  # server bind
+udp_port = 40308  # app bind rudp
+client_port_rudp = 40693  # client bind rudp
 
 
 # ----------rUDP related code------------------
@@ -64,7 +64,6 @@ def image_to_client():
 
         # Read the image file in chunks and send them over UDP
         count = 0
-        data = b'ack'
         file_pos = 0
         seq_num = 0
         seq_ack = -1
@@ -115,8 +114,10 @@ def image_to_client():
                         seq_num += 1
                     elif seq_num != seq_ack and count < 3:
                         print("\ntimeout!!! buffer decreases by half, count-", count)
-                        if buffer_size > 1000:
+                        if buffer_size >= 2000:
                             buffer_size = int(buffer_size / 2) + 1
+                        else:
+                            buffer_size = 1000
                         count += 1
                         chunk = chunk[:buffer_size]
                     else:
@@ -188,7 +189,7 @@ def get_image():
     print("\nconnect to sever")
     # connect the socket to the server's address and port
     server_address = ('127.0.0.1', server_port)
-    print('connecting to {} port {}'.format(*server_address))
+    print('connecting to ', server_address)
     socket_app_server.connect(server_address)
     # send an HTTP GET request for the image
 

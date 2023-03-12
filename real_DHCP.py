@@ -36,7 +36,7 @@ def dhcp_offer(pkt):
         time.sleep(1)
         sendp(dhcp_offer, iface="enp0s3")
         print("send OFFER")
-        sniff(filter="udp and port 68", prn=dhcp_ack, count=1, iface="enp0s3")
+        sniff(filter="udp and dst port 67", prn=dhcp_ack, count=1, iface="enp0s3")
 
 def dhcp_ack(pkt):
     global end_ip, LIST_OF_IP
@@ -62,4 +62,4 @@ def dhcp_ack(pkt):
 
 if __name__ == '__main__':
     print("DHCP on")
-    sniff(filter="udp and port 68", prn=dhcp_offer, iface="enp0s3")
+    sniff(filter="udp and dst port 67", prn=dhcp_offer, iface="enp0s3")

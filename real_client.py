@@ -15,8 +15,8 @@ import pickle
 
 global client_ip, dns_ip, ip_app, seq_num, ack, buffer_size, client_port_tcp, udp_port, client_port_rudp
 
-client_port_tcp = 25553  # app bind
-client_port_rudp = 18848  # client bind rudp
+client_port_tcp = 30308  # app bind
+client_port_rudp = 40693  # client bind rudp
 
 
 
@@ -82,11 +82,11 @@ def dns():
     dns_query = DNS(rd=1, qd=DNSQR(qname="www.myApp.com", qtype=1))
 
     # Create IP packet with destination DNS server and DNS query
-    ip_packet = Ether(src=mac, dst=mac) / IP(src=client_ip, dst=dns_ip) / UDP(dport=53, sport=5300) / dns_query
+    ip_packet = Ether(src=mac, dst=mac) / IP(src=client_ip, dst=dns_ip) / UDP(dport=53, sport=20308) / dns_query
 
     # Send packet and capture response
     sendp(ip_packet, iface="enp0s3", verbose=2)
-    dns_respond = sniff(filter="udp and port 5300", count=1)
+    dns_respond = sniff(filter="udp and port 53", count=1)
     print("got DNS response")
     ip_app = dns_respond[0][DNSRR][0].rdata
     print("ip of the app: ", ip_app)
@@ -108,7 +108,7 @@ def app_rUDP():
     while count:
         # create a UDP packet to tell the app the len of the window
         ip = IP(dst=ip_app, src=client_ip)
-        udp = UDP(sport=8000, dport=server_port)
+        udp = UDP(sport=20693, dport=server_port)
         http = "GET / HTTP/4,Host: {},buffer_size: {},seq: {}".format(ip_app, buffer_size, seq_num)
         pkt = ip / udp / http
         send(pkt)
@@ -116,7 +116,8 @@ def app_rUDP():
         # get ack about the get http4
         print("wait for ack")
         count -= 1
-    sniff(filter="udp and port 8000 and src host " + ip_app, count=1, timeout=5)
+        seq_num += 1
+    sniff(filter="udp and port 20693 and src host " + ip_app, count=1, timeout=5)
     get_image()
 
 
@@ -136,14 +137,14 @@ def get_image():
     count = 0
     # Open a file to write the received chunks to
     with open("received_image.jpg", "wb") as f:
-        prev_seq = 0
+        wanted_seq = 0
         # Receive and write each chunk to the file
         while True:
             num = 5  # for timeout
             data = 0
             print("wait to recv")
 
-            # try to get the chunk fot 5 seconds else we send nack to the app
+            # try to get the chunk fot 5 seconds
             while num:
                 # print("num = ", num)
                 try:
@@ -160,15 +161,14 @@ def get_image():
                         break
                     data = data[(len(seq)-2)+len("seq!!!!!"):]
                     seq = seq.replace("seq!!!!!", "").replace("b'", "").replace('b"', "")
-                    # if seq == "final'":
-                    #     break
                     seq = int(seq)
                     print("got packet seq:", seq)
                     # print("data =", data)
-                    if seq == prev_seq:
+                    # seq from packet is equal to the number we need to get
+                    if seq == wanted_seq:
                         # write data to file
                         f.write(data)
-                        prev_seq += 1
+                        wanted_seq += 1
                         count = 0
                     else:
                         count += 1
@@ -177,12 +177,11 @@ def get_image():
             if data == b'final' or count == 10:
                 print("got all the image!")
                 break
-            # if after 5 seconds we didn't get any data we send nack
-            # send the ack/nack
-            ack_re = "ack:" + str(prev_seq-1)
+            # send the ack
+            ack_re = "ack:" + str(wanted_seq-1)
             if addr != '0.0.0.0':
                 sock.sendto(ack_re.encode(), addr)
-                print("send seq: ", prev_seq-1)
+                print("send seq: ", wanted_seq-1)
                 # print("ack_re", ack_re)
 
 
@@ -211,7 +210,7 @@ def app_TCP():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # connect the socket to the server's address and port
     server_address = ('127.0.0.1', client_port_tcp)
-    print('connecting to {} port {}'.format(*server_address))
+    print('connecting to ', server_address)
     time.sleep(2)
     sock.bind(('127.0.0.1', 30693))
     print("bind")
