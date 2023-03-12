@@ -19,9 +19,9 @@ domain = "www.myApp.com"  # domain APP
 server_ip = "10.0.2.60"
 count = 0
 client_port_tcp = 30308  # app bind tcp
-server_port = 30693  # server bind
+server_port = 40693  # server bind
 udp_port = 40308  # app bind rudp
-client_port_rudp = 40693  # client bind rudp
+client_port_rudp = 20693  # client bind rudp
 
 
 # ----------rUDP related code------------------

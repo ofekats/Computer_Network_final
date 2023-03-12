@@ -2,7 +2,7 @@ from scapy.all import *
 import socket
 import time
 import PIL
-
+import os
 from scapy.layers.dhcp import DHCP, BOOTP
 from scapy.layers.inet import IP, UDP
 from scapy.layers.l2 import Ether
@@ -16,7 +16,7 @@ import pickle
 global client_ip, dns_ip, ip_app, seq_num, ack, buffer_size, client_port_tcp, udp_port, client_port_rudp
 
 client_port_tcp = 30308  # app bind
-client_port_rudp = 40693  # client bind rudp
+client_port_rudp = 20693  # client bind rudp
 
 
 

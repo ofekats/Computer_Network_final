@@ -12,7 +12,7 @@ server_ip = "10.0.2.60"
 
 
 if __name__ == '__main__':
-    server_port = 30693  # server bind
+    server_port = 40693  # server bind
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # bind the socket to a specific address and port

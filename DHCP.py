@@ -31,7 +31,7 @@ def dhcp_offer(pkt):
                     ("subnet_mask", "255.255.255.0"),
                     ("router", "10.0.0.10"),
                     ("name_server", "10.0.0.18"),
-                    ("lease_time", 3600), "end"])
+                    ("lease_time", 86400), "end"])
 
         time.sleep(1)
         sendp(dhcp_offer, iface="enp0s3")
@@ -53,7 +53,7 @@ def dhcp_ack(pkt):
                    DHCP(options=[("message-type", "ack"),
                                  ("subnet_mask", "255.255.255.0"),
                                  ("router", "10.0.0.18"),
-                                 ("lease_time", 3600), "end"])
+                                 ("lease_time", 86400), "end"])
         time.sleep(1)
         sendp(dhcp_ack, iface="enp0s3")
         print("send ACK")
