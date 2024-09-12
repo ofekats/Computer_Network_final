@@ -1,4 +1,4 @@
-# computer Network Final Assignment
+# Computer Network Final Assignment
 ## Project Objective
 This project involves setting up various network clients and servers. The main components are:
 
